@@ -201,6 +201,14 @@ Q.List the functions can stop or suspend the execution of current goroutine, and
 Variadic fun?
 func fruits(fs...string)
 
+MOCKERY:
+https://engwiki.uberinternal.com/display/GOMONOREPO/Generate+mocks
+https://github.com/vektra/mockery
+mockery --name=Stringer
+Go-code path.
+./bin/mockgen code.uber.internal/rt/id-go-common.git/v2/clients/metrics Metrics
+gomock.Any(), 
+Mock.Anything 
 
 Exceptions:
 16. Does go have exceptions?handle?
