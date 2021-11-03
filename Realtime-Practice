@@ -75,3 +75,5 @@ Arc diff
 ucrypto
 Uown
 Studio
+GetHostPort
+ XHTTPModule = fx.Provide(NewDeputyXHTTP) 
