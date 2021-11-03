@@ -62,3 +62,19 @@ ag "go-common.git/client/flipr"
 
 golang practices
 real time use cases
+
+Files:
+Gopkg.lock
+Gopkg.toml
+glide.yaml
+
+base.yaml
+development.yaml
+meta.yaml
+production.yaml
+staging.yaml
+test.yaml
+
+.gen
+.tmp
+Vendor
