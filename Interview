@@ -209,6 +209,15 @@ Go-code path.
 ./bin/mockgen code.uber.internal/rt/id-go-common.git/v2/clients/metrics Metrics
 gomock.Any(), 
 Mock.Anything 
+SetArg
+EXPECT().GetUnmarshalledWithConstraints
+Do
+DoAndReturn
+setArgs
+args.Get
+arguments
+Tag Inject:”t”’
+
 
 Exceptions:
 16. Does go have exceptions?handle?
