@@ -50,6 +50,7 @@ bazel query 'allpaths(@io_bazel_rules_go//proto:go_proto, @com_github_golang_pro
 bazel query "allpaths(//src/code.uber.internal/core_services/customer-platform/services/customer-gatewa/..., @internal_uber_code_go_common_git//client/flipr:go_default_library)"
 gofmt -w -r '"mock/code.uber.internal/go-common.git/client/flipr/fliprmock" -> "mock/code.uber.internal/rt/flipr-client-go.git/flipr/fliprmock"' $(find . -name "*.go" | grep -v /vendor|grep -v /go-build) *.go —working.
 
+https://trace.uberinternal.com
 ag "flipr" | grep "_test.go"
 ag GetUnmarshalledWithConstraints | grep "_test.go"
 ag "go-common.git/client/flipr"
