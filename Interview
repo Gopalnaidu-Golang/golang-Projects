@@ -1,0 +1,516 @@
+Micro services:
+MICRO SERVICES Architecture:	
+* Scalability.
+* Availability.
+* Resiliency.
+* Independent, autonomous.
+* Decentralized governance.
+* Failure isolation.
+* Auto-Provisioning.
+* Continuous delivery through DevOps.
+Patterns:
+* 1.Decomposition Patterns
+* 2.Integration Patterns
+* 3.Database Patterns
+* 4.Observability Patterns
+* 5.Cross-Cutting Concern Patterns
+
+* 2a.API Gateway Pattern
+* 2b.Aggregator Pattern
+* 2c.Client-Side UI Composition Pattern
+
+Why using Golang
+PURPOSE:compiles to quick running native code
+1. Why prefer go-lang or features?
+* GO compiles very quickly
+* Go supports concurrency at the language level
+* Functions are first class objects in GO
+* GO has garbage collection
+* Strings and Maps are built into the language
+
+Environment variables,Compilation,testing,debugging and codebase.
+
+Default pkgs and 3 party packages
+1. List out built in support ?
+Compilation & Unit test:GOPATH environment variable
+Garbage collection
+First class objects
+* Container: container/list , container/heap
+* Web Server: net/http
+* Cryptography: Crypto/md5 , crypto/sha1
+* Compression: compress/ gzip
+* Database: database/sql
+FRAMEWORKS in GO.
+* RPC:RemoteProcedurecalls
+* MVC:Model view controllers
+* ORM: Object-Relationship Map
+* SOA:Service-Oriented Architectures
+- Grpc: modern open source high performance RPC framework using http/2
+- Fasthttp,gin,beego,echo,kit,grpc ,iris,Martini,Buffalo,net/http,gorilla,mango,gocrafe,goji
+- Session handling tools,in-built cache handler
+- Gocraft is a Go mux custom middleware package.
+Packages used go?
+PKGS:
+Gorillamux
+Reflect
+GORM lib
+Testing/mock
+Dependency injection lib fx
+
+Variables:
+Constans
+
+What is "rune" type in Go?
+Can Go have optional parameters?
+dynamic type declaration of a variable in Go?
+Diff bw short and global variables?
+Q.wt is type assertion in go? Reflect pkg
+A. type assertion takes an interface value and retrieves from it a value of the specified explicit type.
+ Type assertion :https://yourbasic.org/golang/type-assertion-switch/
+wt r user defined data types:
+Maps,structs and interfaces
+ARRAYS:
+2.Init a slice using make.
+3.diff bw slice and array write a syntax with literals.
+In GO Array works differently than it works in C
+* Arrays are values, assigning one array to another copies all the elements
+* If you pass an array to a function, it will receive a copy of the array, not a pointer to it
+* The size of an array is part of its type. The types [10] int and [20] int are distinct
+
+STRUCTURES:
+Why would you prefer to use an empty struct{}? To save a memory
+ 4.how to init structure?why should use empty structure?
+https://www.toptal.com/go/interview-questions
+Answer
+The new keyword can be used to create a new struct. It returns a pointer to the newly created struct.
+var pa *Student   // pa == nil
+pa = new(Student) // pa == &Student{"", 0}
+pa.Name = "Alice" // pa == &Student{"Alice", 0}
+You can also create and initialize a struct with a struct literal.
+b := Student{ // b == Student{"Bob", 0}
+    Name: "Bob",
+}
+
+pb := &Student{ // pb == &Student{"Bob", 8}
+    Name: "Bob",
+    Age:  8,
+}
+
+c := Student{"Cecilia", 5} // c == Student{"Cecilia", 5}
+d := Student{}             // d == Student{"", 0}
+
+type MyStruct struct {
+    Val int
+}
+
+func myfunc() MyStruct {
+    return MyStruct{Val: 1}
+}
+
+func myfunc() *MyStruct {
+    return &MyStruct{}
+}
+
+func myfunc(s *MyStruct) {
+    s.Val = 1
+}
+* the first returns a copy of the struct,
+* the second a pointer to the struct value created within the function,
+* the third expects an existing struct to be passed in and overrides the value.
+—————————————————————————
+
+primes := [6]int{2, 3, 5, 7, 11, 13}
+s1 := primes[1:4]
+MAPS:
+How to check if a map contains a key in Go?
+   8.use of make fun?how to init map using with make
+
+INTERFACES:
+    Wt is Interface? Empty interface use?
+
+   9. Pointer default value?
+   
+
+
+Type conversions
+
+Runtime type check
+10.how do check variable type at runtime?
+A special type of switch is dedicated in GO to check variable type at runtime, this switch is referred as type switch.  Also, you can switch on the type of an interface value with Type Switch.
+https://www.geeksforgeeks.org/different-ways-to-find-the-type-of-variable-in-golang/
+
+Strings:
+concatinate string in go
+REGULAER EXPRESSION:
+How you can format a string without printing?
+
+Opertators:
+How can I check if two slices are equal?
+
+Control ststements:
+Diff bw for loop and range 
+Diff  bw switch and select statement?
+Select statement uses when u wait on multiple channel
+
+Select {},A select blocks until one of its cases can run.
+which is used for multiple channels operation.
+
+package main 
+  
+// main function 
+func main() { 
+      
+    // creating channel 
+    mychannel:= make(chan int) 
+      
+    // channel is not ready  
+   // and no default case 
+   select{ 
+       case <- mychannel: 
+         
+   } 
+}
+
+
+Functions:
+1.How do you export functions from a package?
+func DoWork(){
+    // this function is usable outside this package
+}
+
+func doWork(){
+    // this function is NOT usable outside this package
+}
+2.diff  bw method and function in go?How we will call the method.
+      How do capture multiple return type ?
+
+Panic if not assign value to pointer,defer
+Recover
+Q.Write a prog it return an anonymous function from another function
+A.https://www.geeksforgeeks.org/anonymous-function-in-go-language/
+Q.Func clousure nothing but anonymous fun to generate series of event num
+Anonymous fun use? Or clousers
+Counter variable implementation?
+
+Q.List the functions can stop or suspend the execution of current goroutine, and explain their differences
+* runtime.Gosched: give up CPU core and join the queue, thus will be executed automatically.
+* runtime.gopark: blocked until the callback function unlockf in argument list return false.
+* runtime.notesleep: hibernate the thread.
+* runtime.Goexit: stop the execution of goroutine immediately and call defer, but it will not cause panic.
+
+Variadic fun?
+func fruits(fs...string)
+
+
+Exceptions:
+16. Does go have exceptions?handle?
+   17. Wt is panic how to handle ? Using defer
+Recover
+
+Logs and ERRORS:
+
+Channels:
+Go ROUTINS and SYNCHRONIZATION:
+1. Wt is channel? How many types?why need to close the channel.
+2. Is it possible to send and receive value in a channel within the function?
+3. Buffered channel when will go block mode?
+When we need to close the channel?
+* When you need a channel to signal an event, but do not really need to send any data. This event is also not the last one in the sequence, in which case you would use the close(ch) built-in function.
+Concurreny
+Wt r go routins how to synchronise
+18. Sync.mutex,sync.wait groups, channel
+19. Select and switch statement
+20. How to stop go-routine? Using context & signal
+Deadlock?
+Race conditions.
+Maps reading writing prob not concurrent safe
+Scheduler goroutins
+Are channels and maps safe for concurrent access?
+
+OOPS:
+How to approach inheritance:
+
+polymorphisem:
+
+Logical quetions
+COPY:
+How do you copy a slice, a map, and an interface?
+
+fruits := map[string]int{
+	"oranges": 100,
+	"apples":  200,
+	"bananas": 300,
+}
+
+Q. // Put the keys in a slice and sort it.
+
+A. var keys []string
+      for key := range fruits {
+	 keys = append(keys, key)
+         }
+         sort.Strings(keys)
+
+// Display keys according to the sorted slice.
+for _, key := range keys {
+	fmt.Printf("%s:%v\n", key, fruits[key])
+}
+// Output:
+// apples:200
+// bananas:300
+// oranges:100
+
+Var s []int and a := []int {} which is better and why
+
+a := []int{1, 2}
+b := []int{3, 4}
+check := a
+copy(a, b)
+fmt.Println(a, b, check)
+
+// Output: [3 4] [3 4] [3 4]
+
+How do you compare two structs? What about two interfaces? Provide examples.
+var a interface{}
+var b interface{}
+
+a = 10
+b = 10
+println(a == b)
+// Output: true
+
+a = []int{1}
+b = []int{2}
+println(a == b)
+// Output: panic: runtime error: comparing uncomparable type []int
+
+how you to access command line arguments passed to a GO program
+
+func main() {
+	names := [4]string{
+		"John",
+		"Paul",
+		"George",
+		"Ringo",
+	}
+	fmt.Println(names)
+
+	a := names[0:2]
+	b := names[1:3]
+	fmt.Println(a, b)
+
+	b[0] = "XXX"
+	fmt.Println(a, b)
+	fmt.Println(names)
+
+et := make(map[string]struct{})
+for _, value := range []string{"apple", "orange", "apple"} {
+   set[value] = struct{}{}
+}
+fmt.Println(set)
+// Output: map[orange:{} apple:{}]
+copy a map into another map?
+Reverse a string
+func reverse(s string) string {
+    rns := []rune(s) // convert to rune
+    for i, j := 0, len(rns)-1; i < j; i, j = i+1, j-1 {
+  
+        // swap the letters of the string,
+        // like first with last and so on.
+        rns[i], rns[j] = rns[j], rns[i]
+    }
+* If the target is an int64, use strconv.FormatInt because it accepts an int64 argument. Otherwise, convert to int if necessary and use strconv.Itoa.
+* If the target is part of a fmt.Printf-style call, let fmt do the conversion. That is, fmt.Sprintf("%s", string(i)) becomes fmt.Sprintf("%v", i).
+* If the target is a constant, write the string version by hand. For example, "42" for string(42).
+* If the target is a test name, use fmt.Sprint for convenience.
+* For the very small number of cases where conversion of the integer to single-rune string was desirable, use string(rune(i)). In one such case, a larger string was being built, so use a strings.Builder there instead.
+
+Fibonacci series 
+Write a counter var prog.
+Remove duplicates from a array
+Remove duplicates
+str1 := "abbcdeeefa"
+// abcdef
+mapObj := make(map[string]int)
+res := ""
+for _,ch := range str1 {
+if _, ok := mapObj[string(ch)]; !ok {
+mapObj[string(ch)] = 1
+res = res + string(ch)
+}
+}
+fmt.Println(res)
+
+package main
+import "fmt"
+
+type IPAddr [4]byte
+
+// TODO: Add a "String() string" method to IPAddr.
+
+func main() {
+	hosts := map[string]IPAddr{
+		"loopback":  {127, 0, 0, 1},
+		"googleDNS": {8, 8, 8, 8},
+	}
+	for name, ip := range hosts {
+		fmt.Printf("%v: %v\n", name, ip)
+	}
+}
+
+
+write stack logic using array
+type Stack []int
+func (s Stack) Empty() bool { return len(s) == 0 }
+func (s *Stack) Push(v int) { (*s) = append((*s), v) }
+func (s *Stack) Pop() int {
+	v := (*s)[len(*s)-1]
+	(*s) = (*s)[:len(*s)-1]
+	return v
+}
+
+type Queue []int
+func (q Queue) Empty() bool    { return len(q) == 0 }
+func (q *Queue) Enqueue(v int) { (*q) = append((*q), v) }
+func (q *Queue) Dequeue() int {
+	v := (*q)[0]
+	(*q) = (*q)[1:len(*q)]
+	return v
+}
+Can u write this output.
+X _ X
+O _ X
+_ _ O
+package main
+
+import "fmt"
+
+func main() {
+	a := make([]int, 5)
+	printSlice("a", a)
+
+	b := make([]int, 0, 5)
+	printSlice("b", b)
+
+	c := b[:2]
+	printSlice("c", c)
+
+	d := c[2:5]
+	printSlice("d", d)
+}
+
+func printSlice(s string, x []int) {
+	fmt.Printf("%s len=%d cap=%d %v\n",
+		s, len(x), cap(x), x)
+}
+
+webservice apps:
+Diff bw http and rest api and curl
+Database
+
+
+URLS:
+https://gobyexample.com/atomic-counters
+https://stackoverflow.com/questions/50304851/how-to-create-global-counter-in-highly-concurrent-system
+https://qvault.io/golang/top-golang-interview-questions/
+https://www.fullstack.cafe/interview-questions/golang
+
+REAL TIME EXAMPLES:
+Type Constraint func(map[string]interface{})
+
+func Run(p Params) {
+   rand.Seed(time.Now().UnixNano())
+
+   var closer io.Closer
+
+   p.Lifecycle.Append(fx.Hook{
+      // Initialization and start logic
+      OnStart: func(ctx context.Context) error {
+         closer = DoMain(p)
+         return nil
+      },
+      // Close and shutdown logic
+      OnStop: func(ctx context.Context) error {
+         _ = closer.Close()
+         return nil
+      },
+   })
+}
+gomock.Not(context.Background())
+mockFlipr.Let().GetUnmarshalledWithConstraints().Call(
+	func(ctx2 context.Context,key string, ctx flipr.Constraints, retVal interface{}) error {
+		return xerrors.New("some error")
+	},
+
+TAGS:
+Each field can be followed by an optional string literal, called tag. This tag will become an attribution for the field.
+Reflection
+In order to actually access the tags and use them, you have to use the reflect package.
+field.Tag.Lookup("color")
+field.Tag.Get(“color")
+Wt is inject tag used in uber?
+type Page struct {
+    PageId string                 `bson:"pageId" json:"pageId"`
+    Meta   map[string]interface{} `bson:"meta" json:"pageId"`
+}
+Items []Item `gorm:"foreignkey:CollectionId" json:"items"`
+type MyStruct struct {
+  Field1 string `json,bson,xml,form:"field_1,omitempty" other:"value"`
+}
+https://levelup.gitconnected.com/struct-field-tags-in-go-fcc2428a1f91
+SCENARIO:
+func (q *esQuerier) EsDo(ctx tthrift.Context, esContext *params.EsContext, queryContext *params.QueryContext, searchSource *es.SearchSource) (*es6.SearchResult, error) {
+
+defer q.ServiceDeps.InstrumenterFactory.Start(ctx, q.ServiceDeps.ZapLogger.Sugar(),
+	"esQuerier.EsDoV1",
+).Finish(func(context context.Context, logData *factory.LogData) {
+	logData.Fields = factory.LogFields{
+		"queryContext":                queryContext.GetLoggingMeta(),
+		"cluster":                     esClient.ClusterName,
+		"index":                       esContext.IndexName,
+		"includeKPStr":                queryContext.GetIncludeKPStr(),
+		"userQuery":                   queryContext.GetUserQuery(),
+		"expansion":                   queryContext.GetQueryExpansionSource(),
+		"execTimeInContextInMilliSec": durationInMilliSec,
+	}
+}
+Q.What are the use(s) for tags in Go? 
+ tag for a field allows you to attach meta-information to the field which can be acquired using reflection. Usually it is used to provide transformation info on how a struct field is encoded to or decoded from another format (or stored/retrieved from a database), but you can use it to store whatever meta-info you want to, either intended for another package or for your own use.
+Consider:
+type User struct {
+    Name  string `mytag:"MyName"`
+    Email string `mytag:"MyEmail"`
+}
+
+u := User{"Bob", "bob@mycompany.com"}
+t := reflect.TypeOf(u)
+
+for _, fieldName := range []string{"Name", "Email"} {
+    field, found := t.FieldByName(fieldName)
+    if !found {
+        continue
+    }
+    fmt.Printf("\nField: User.%s\n", fieldName)
+    fmt.Printf("\tWhole tag value : %q\n", field.Tag)
+    fmt.Printf("\tValue of 'mytag': %q\n", field.Tag.Get("mytag"))
+}
+Output:
+Field: User.Name
+    Whole tag value : "mytag:\"MyName\""
+    Value of 'mytag': "MyName"
+
+Field: User.Email
+    Whole tag value : "mytag:\"MyEmail\""
+    Value of 'mytag': "MyEmail"
+
+Q.When is the init() function run? When is the init() function run?
+Answer:
+init() is called after all the variable declarations in the package have evaluated their initializers, and those are evaluated only after all the imported packages have been initialized.
+If a package has one or more init() functions they are automatically executed before the main package's main() function is called.
+import --> const --> var --> init()
+* If a package imports other packages, the imported packages are initialized first.
+* Current package's constant initialized then.
+* Current package's variables are initialized then.
+* Finally, init() function of current package is called.
+
+
+
