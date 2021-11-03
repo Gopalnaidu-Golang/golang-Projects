@@ -3,6 +3,9 @@ golang used commands
 eval `ssh-agent`
 USSH
 Go Commands
+export UBER_LDAP_UID=gnaidu2 >> ~/.zshrc
+export UBER_OWNER=gnaidu2@ext.uber.com
+export UBER_OWNER=username@uber.com >> ~/.zshrc
 bazel clean --expunge
 ./go-build/dep  cc
 GO111MODULE=off
