@@ -26,6 +26,14 @@ Bazel clean
 5. bazel build …
 6. bazel test …
 
+Go.mod
+Go.sum
+Go mod tidy
+Go get
+gofmt -w -r
+Glue
+Glue mocks:make glueclean && make gluegen
+Glide
 go get code.uber.internal/devexp/deputyfx.git@v1.0.0
 go mod tidy
 
