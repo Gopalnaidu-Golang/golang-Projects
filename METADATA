@@ -5,6 +5,9 @@ Go fmt to replace pkg in imports area
 Go list -m all
 Go get pkgname
 G mod —init
+ag "flipr" | grep "_test.go"
+ag GetUnmarshalledWithConstraints | grep "_test.go"
+ag "go-common.git/client/flipr"
 
 golang practices
 real time use cases
