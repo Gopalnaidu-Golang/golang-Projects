@@ -146,6 +146,26 @@ How you can format a string without printing?
 
 Opertators:
 How can I check if two slices are equal?
+Q.How can I check if two slices are equal? 
+A. func testEq(a, b []Type) bool {
+
+    // If one is nil, the other must also be nil.
+    if (a == nil) != (b == nil) { 
+        return false; 
+    }
+
+    if len(a) != len(b) {
+        return false
+    }
+
+    for i := range a {
+        if a[i] != b[i] {
+            return false
+        }
+    }
+
+    return true
+}
 
 Control ststements:
 Diff bw for loop and range 
