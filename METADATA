@@ -1,13 +1,50 @@
 Interview questiins
 golang used commands
+eval `ssh-agent`
+USSH
 Go Commands
+bazel clean --expunge
+./go-build/dep  cc
+GO111MODULE=off
+export GOPATH="/Users/gnaidu2/gocode"
+export UBER_HOME=“/Users/gnaidu2/Uber”
+export UBER_HOME=“/var/lib/uber”
+export JAVA_HOME=`/usr/libexec/java_home -v 14.0.1` ``
+ssh -L 4587:artifactory.uber.internal:4587 adhoc20-dca1
+export GOPRIVATE=code.uber.internal/* 
+export GOPROXY=goproxy.uberinternal.com`
+make update-gobuild
+Make clean
+Make imports
+make thriftc
+Make fmt
+Make proc
+make serve
+
+Bazel clean
+4. gazelle
+5. bazel build …
+6. bazel test …
+
+go get code.uber.internal/devexp/deputyfx.git@v1.0.0
+go mod tidy
+
 Go fmt to replace pkg in imports area
 Go list -m all
 Go get pkgname
-G mod —init
+Gomod —init
+bazel query 'allpaths(@io_bazel_rules_go//proto:go_proto, @com_github_golang_protobuf//ptypes/struct:go_default_library)' --notool_deps --output graph | dot -Tsvg
+bazel query "allpaths(//src/code.uber.internal/core_services/customer-platform/services/customer-gatewa/..., @internal_uber_code_go_common_git//client/flipr:go_default_library)"
+gofmt -w -r '"mock/code.uber.internal/go-common.git/client/flipr/fliprmock" -> "mock/code.uber.internal/rt/flipr-client-go.git/flipr/fliprmock"' $(find . -name "*.go" | grep -v /vendor|grep -v /go-build) *.go —working.
+
 ag "flipr" | grep "_test.go"
 ag GetUnmarshalledWithConstraints | grep "_test.go"
 ag "go-common.git/client/flipr"
+- If you are seeing test failures with the error `too many files open`, check ulimit
+```
+    ➜  edge-gateway git:(master) ulimit -n
+    256
+    ➜  edge-gateway git:(master) ulimit -n 9999
 
 golang practices
 real time use cases
