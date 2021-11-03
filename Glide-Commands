@@ -1,0 +1,16 @@
+To clear glide cache:
+Glide cc
+glide --version
+
+$ glide mirror set https://golang.org/x/crypto https://github.com/golang/crypto --vcs git
+Glide tree
+Glide list
+
+go-build/glide up
+1.glide install
+2.glide init
+1.glide up
+3.glide get -u
+4.git config --global http.sslVerify true
+5.glide mirror set
+glide --debug update
