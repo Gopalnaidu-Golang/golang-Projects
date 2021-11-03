@@ -1,0 +1,100 @@
+Variable declaration and init:
+Var x int
+Var y = 100
+Z := 200
+Declare fun takes array of int and return pointer to int
+Fun locate(a [] int) *int{}
+Operators:
+++,— are not avail, when only required pointer arithmetic operations.
+BIT Operations
+Const var
+Iota
+Controlestatements: use date of weeks
+Switch. Case allows all datatypes not like c
+String operations: array of byte
+Don’t concatenate string and byte
+Byte cannot be converted but byte array can be converted
+Return string is s[]
+—————————————————————
+Print repeated char of string?
+Var pln = fmt.println //pln is fun alias
+pln(s,”-[“,GetRepeatChars(s),”]”)
+
+Func getRepeatedChars(str string)string{
+Var rep chars string
+Var bc = []byte{0}
+
+For k:=0; k<len(str); k++{
+bc[0]=str[k]
+ts:= string(bc)
+If (s.Count()str,ts)&&(s.Count(repchars,ts)==0){
+ repchars = repchars + string(bc). //concatenate
+}
+}
+Return rep chars
+}
+
+Print the longest word of a string:
+Func getLongerstWord(str string) string{
+Var lw string
+Words := s.Fields(str). //returns array of string
+For _,w := range(wprds){
+  If len(w)  > len (lw){
+      lw = w}
+}
+Return lw
+}
+Declaring arrays:
+Var score[10] int
+Var day count = []int{5,8,2,14,30}
+Var rowel = [10]int{}
+Var testdata = [5]int{1:20,3:15}
+pln(testdata)
+Copy array
+2D array. Mat :=  [3][2] int {{(1,2),(2,3),(4,5)}}. //syntax IMP
+Declaring slices: 
+Diff when passing array and slice to a fun?
+Array: receive only copy of array always value type
+Slice : operates on the slice[reference] if fun change slice reflects.
+Var slc1 = [] int{}
+Var slc2 = [] int {1,4,5,8}
+Var slc3 []int = make([]int,5,10)
+
+Remove all occurrences of an element from a slice
+Var ary1 = [] int {1,2,2,3,4,1,3,5,6,5,3,5} func removeall(inary [] int, val int) []int {
+Var ovary [] int
+For I:=0;i <len(inary); i++ {
+  If inary[I] =! Val{
+    Ovary = append(ovary,inary[I])
+}
+}
+Return ovary
+}
+Structure:
+Type point strict {
+ X int, y int
+}
+P1:= point{x:3,y:4}
+P2 :=  point {}
+P3 := new(point)
+P4 := &point{}
+File Operations:
+Read standard input line by line and print line which is matching given pattern in command line
+Fun cat(fh *os.file){
+Scanner := buffo.Newscanner(fh)
+For scanner.scan() {//terminates on reaching EOF
+Line := scanner.test()
+Fat.println(line)
+}
+If len(os.args)==1 {
+cat(os.stdin)
+} else {
+Fh,_ := os.open(os.args[1])
+cat(fh)
+}
+
+If len(os.args)>1 {
+Fh,_ := os.open(os.args[1])
+Scanner := buffo.Newscanner(fh)
+//Scanner := buffo.Newscanner(os.stdin)}
+}
