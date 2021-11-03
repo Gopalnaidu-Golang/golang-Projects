@@ -1,0 +1,77 @@
+Q. How creating vendor files in micro services?
+Go.lock file, glide.yaml file
+Q. How creating vendor files in monorepo?
+Go.mod,go.sum
+A. Go mod tidy and setup-gopath.
+
+Q.Hook already exists: pre-push.
+git config --list
+sudo rm /usr/local/etc/hooks/*
+sudo chown $(whoami) /usr/local/etc/hooks
+Q.'--less-context' flag. If the file is not a text file, you can mark it
+    'binary'. Mark this file as 'binary' and continue? [y/N] N
+Removed vendor then --less-context has worked.
+
+Q.go vet issue in supply/enforcer.
+A.https://code.uberinternal.com/D5147291
+for i := range overLimitUUIDS {
+		overLimitUUIDS[i] = enforcer.UUID(fmt.Sprint(i))
+	}
+for i := range overLimitUUIDS {
+		overLimitUUIDS[i] = enforcer.UUID(uuid.Must(uuid.NewV4()).String())
+	}
+  Q. How do find NPE’s in my local?
+  Q.last line put empty line in go otherwise error will get.
+  Q. No dependencies were provided. run gazelle or manually update lib
+  Q.Gazelle/go get not running in go-code path then:
+  brew install direnv
+  When below files will create
+B. Vendor
+C. temp
+D. gen
+Make Clean: only clearing gen files & vendor.
+Q  direnv.envrc
+4:export PATH="$project_root/go-build:$project_root/.tmp/.go/goroot/bin:$PATH"
+Version conflicts: in microrepo at step 6
+Glue
+Glue mocks:make glueclean && make gluegen
+Glide
+Ps -ef|grep docker to chk docker is running
+GO111MODULE=off
+export GOPATH="/Users/gnaidu2/gocode"
+export UBER_HOME=“/Users/gnaidu2/Uber”
+export JAVA_HOME=`/usr/libexec/java_home -v 14.0.1
+Pkg’s
+gRPC
+Yarpc
+Tally
+Protobuf
+tChannel
+Zap
+Thriftrw
+
+https://console.uberinternal.com/service
+ugrafana
+umonitor
+poratability
+up
+UDeploy
+Submitqueue
+Phabricator
+Source graph
+Slack chasing
+Stack overflow
+Engwiki
+Coda
+Googledocs
+Gazelle
+Bazel build monorepo
+Bazel bild …,bazel test …,bazel clean —expaunge,bazel query
+Make microrepo
+Make bins, make vet, make imports and make clean
+Jira
+Git
+Arc diff
+ucrypto
+Uown
+Studio
