@@ -2,6 +2,8 @@ Interview questiins
 golang used commands
 eval `ssh-agent`
 USSH
+cntl+a,cntl+e for cursor end line in mac cli
+
 Go Commands
 export UBER_LDAP_UID=gnaidu2 >> ~/.zshrc
 export UBER_OWNER=gnaidu2@ext.uber.com
