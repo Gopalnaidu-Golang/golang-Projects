@@ -1,23 +1,29 @@
-Interview questiins
+Setup environments and IDE:vscode,goland
+https://github.com/golang/vscode-go#Set-up-your-environment
+
+Interview questions
 golang used commands
 eval `ssh-agent`
 USSH
 cntl+a,cntl+e for cursor end line in mac cli
 
-Go Commands
 export UBER_LDAP_UID=gnaidu2 >> ~/.zshrc
 export UBER_OWNER=gnaidu2@ext.uber.com
 export UBER_OWNER=username@uber.com >> ~/.zshrc
+
 bazel clean --expunge
 ./go-build/dep  cc
+
 GO111MODULE=off
 export GOPATH="/Users/gnaidu2/gocode"
 export UBER_HOME=“/Users/gnaidu2/Uber”
 export UBER_HOME=“/var/lib/uber”
 export JAVA_HOME=`/usr/libexec/java_home -v 14.0.1` ``
+
 ssh -L 4587:artifactory.uber.internal:4587 adhoc20-dca1
 export GOPRIVATE=code.uber.internal/* 
 export GOPROXY=goproxy.uberinternal.com`
+
 make update-gobuild
 Make clean
 Make imports
@@ -34,14 +40,11 @@ Bazel clean
 Go.mod
 Go.sum
 Go mod tidy
-Go get
 gofmt -w -r
 Glue
 Glue mocks:make glueclean && make gluegen
 Glide
 go get code.uber.internal/devexp/deputyfx.git@v1.0.0
-go mod tidy
-
 Go fmt to replace pkg in imports area
 Go list -m all
 Go get pkgname
@@ -63,10 +66,11 @@ ag "go-common.git/client/flipr"
 golang practices
 real time use cases
 
-Files:
+Pkg or version managemant:
 Gopkg.lock
 Gopkg.toml
 glide.yaml
+go.mod
 
 base.yaml
 development.yaml
