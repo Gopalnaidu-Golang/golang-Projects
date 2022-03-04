@@ -1,0 +1,124 @@
+
+
+
+
+
+
+func (c *controller) UpdateCarrierTruckMapping(ctx context.Context,
+	vehicleDetails []entity.P44CarrierVehicle) error {
+	if len(vehicleDetails) > CreateTruckBatchSize {
+		return errors.New(errors.ParamsError, "Exceeded allowed batch size")
+	}
+	metricsTag := map[string]string{}
+	metricsTagResult := "result"
+	scope := metrics.FromContext(ctx)
+	scope.Counter(UpdateCarrierTruckMappingRequestCount).Inc(1)
+	// Retrieve provider
+	provider, err := c.providerRepo.ReadProvider(ctx, entity.ProviderNameP44.String())
+	if err != nil {
+		logger.FromContext(ctx).With(zap.Error(err)).Error("Failed to retrieve the provider uuid")
+		return err
+	}
+	providerUUID := provider.UUID()
+
+	// Create waitgroup
+	var wg sync.WaitGroup
+
+	//we want to limit the size of our worker pool to at most maxWorkers
+	const maxWorkers = 10
+	errorsChannel := make(chan error, len(vehicleDetails))
+	numWorkers := utils.MinInt(maxWorkers, len(vehicleDetails))
+	vehicleChannel := make(chan entity.P44CarrierVehicle, len(vehicleDetails))
+
+	//create workers
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go c.persistVehicleToRepository(ctx, vehicleChannel, errorsChannel, &wg, providerUUID)
+	}
+
+	//create jobs
+	for _, vehicle := range vehicleDetails {
+		vehicleChannel <- vehicle
+	}
+	close(vehicleChannel)
+
+	wg.Wait()
+	close(errorsChannel)
+	numErrors := len(errorsChannel)
+	for curErr := range errorsChannel {
+		err = multierr.Append(err, curErr)
+	}
+
+	if numErrors > 0 {
+		metricsTag[metricsTagResult] = "error"
+		scope.Tagged(metricsTag).Counter(P44UpdateCarrierTrucks).Inc(int64(numErrors))
+		logger := logger.FromContext(ctx).With(zap.Int("error_count", len(errorsChannel)), zap.Int(
+			"record_count", len(vehicleDetails)))
+		logger.With(zap.Error(err)).Error("failed to save vehicle information")
+	}
+	metricsTag[metricsTagResult] = "success"
+	scope.Tagged(metricsTag).Counter(P44UpdateCarrierTrucks).Inc(int64(len(vehicleDetails) - numErrors))
+	return err
+}
+
+func (c *controller) persistVehicleToRepository(
+	ctx context.Context,
+	vehicleChannel <-chan entity.P44CarrierVehicle,
+	errorChannel chan<- error,
+	wg *sync.WaitGroup,
+	providerUUID uuid.UUID,
+) {
+	defer wg.Done()
+	for vehicleDetail := range vehicleChannel {
+		var carrierUUIDString string
+		if vehicleDetail.CarrierUUID != nil {
+			carrierUUIDString = vehicleDetail.CarrierUUID.String()
+		} else {
+			identifierType := vehicleDetail.CarrierIdentifierType.String()
+			identifierValue := vehicleDetail.CarrierIdentifierValue
+
+			carrier := entity.P44Carrier{
+				CarrierIdentifierType:  &identifierType,
+				CarrierIdentifierValue: &identifierValue,
+			}
+
+			p44Carrier, err := c.carrierRepository.ReadP44CarrierByIdentifierType(ctx, carrier)
+			if err != nil {
+				errorChannel <- err
+				logger.FromContext(ctx).With(zap.Error(err)).Error("Failed to ReadP44CarrierByIdentifierType")
+				continue
+			}
+			carrierUUIDString = p44Carrier.CarrierUUID
+		}
+
+		carrierUUID, err := mapper.UUIDFromString(carrierUUIDString)
+		if err != nil {
+			errorChannel <- err
+			logger.FromContext(ctx).With(zap.Error(err)).Error("Failed to parse carrierUUID")
+			continue
+		}
+		// Map P44Vehicle to doppler vehicle entity
+		dopplerVehicleEntity := mapper.P44VehicleDetailToDopplerVehicleEntity(vehicleDetail, carrierUUID,
+			factory.UUID())
+
+		// Get or persist doppler vehicle
+		dopplerVehicle, err := c.vehicleRepo.CreateOrUpdateDopplerVehicle(ctx, dopplerVehicleEntity)
+		if err != nil {
+			errorChannel <- err
+			logger.FromContext(ctx).With(zap.Error(err)).Error("Failed to persist doppler vehicle")
+			continue
+		}
+
+		// Map provider vehicle details to entity vehicle
+		providerVehicleEntity := mapper.P44VehicleDetailToProviderVehicleEntity(vehicleDetail, dopplerVehicle.UUID(),
+			providerUUID, factory.UUID())
+
+		// Get or persist Provider vehicle
+		_, err = c.vehicleRepo.CreateOrUpdateProviderVehicle(ctx, providerVehicleEntity)
+		if err != nil {
+			errorChannel <- err
+			logger.FromContext(ctx).With(zap.Error(err)).Error("Failed to persist provider vehicle")
+			continue
+		}
+	}
+}
