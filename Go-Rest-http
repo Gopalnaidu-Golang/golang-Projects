@@ -1,0 +1,158 @@
+
+
+
+// CreateOrder -
+func (g *gateway) CreateOrder(
+	ctx context.Context,
+	createOrderReq model.MacropointCreateOrderRequest) (createOrderResp model.MacropointCreateOrderResponse, err error) {
+
+	path := gateway2.BuildURL(g.cfg.Host, utils.ZeroStr, createOrderPath, url.Values{})
+	var method string
+	method = http.MethodPost
+
+	if err := g.doMakeRequest(path, method, &createOrderReq, &createOrderResp); err != nil {
+		return model.MacropointCreateOrderResponse{},
+			errors.Wrap(errors.InternalError, err, "fail to get response for CreateOrder request")
+	}
+
+	// TODO: Auditing matching attempts
+	return createOrderResp, nil
+}
+
+//form request
+// MacropointCreateOrderRequest -
+func MacropointCreateOrderRequest(params *model.MacropointOrder, pickupAddr *entity.Address, dropoffAddr *entity.Address, dotNumber string) (model.MacropointCreateOrderRequest, error) {
+	pickupStartTime, _ := dateTimeToMacropointTimestamp(utils.TimeFromPointer(params.PickupStartTime))
+	pickupEndTime, _ := dateTimeToMacropointTimestamp(utils.TimeFromPointer(params.PickupEndTime))
+	dropoffStartTime, _ := dateTimeToMacropointTimestamp(utils.TimeFromPointer(params.DropoffStartTime))
+	dropoffEndTime, _ := dateTimeToMacropointTimestamp(utils.TimeFromPointer(params.DropoffEndTime))
+	pickupPostalcode, _ := strconv.Atoi(*pickupAddr.PostalCode)
+	dropoffPostalcode, _ := strconv.Atoi(*dropoffAddr.PostalCode)
+	diff := params.DropoffStartTime.Sub(*params.PickupStartTime)
+	req := model.MacropointCreateOrderRequest{
+		Load: model.MacropointLoad{
+			TrackStartDateTime: pickupStartTime,
+			Notifications: model.Notification{
+				PartnerMPID:            PartnerMPID,
+				IDNumber:               params.JobUUID,
+				TrackDurationInHours:   int(diff.Hours()) + 4,
+				TrackIntervalInMinutes: TrackIntervalInMinutes,
+			},
+			Carrier: model.CarrierData{
+				CarrierID:   *params.CarrierUUID,
+				CarrierName: dotNumber,
+			},
+			Vehicle: model.VehicleData{
+				VehicleType: VehicleTypeDryVan,
+			},
+			TripSheet: model.TripSheetData{
+				Stops: model.StopsData{
+					Stop: []model.StopData{
+						{
+							StopName: STOP1,
+							StopType: PickupStopType,
+							StopID:   ONE,
+							Address: model.StopAddress{
+								PostalCode:   pickupPostalcode,
+								AddressLines: []string{*pickupAddr.Address},
+								City:         *pickupAddr.City,
+								State:        *pickupAddr.State,
+								Country:      *pickupAddr.Country,
+							},
+
+							StartDateTime: pickupStartTime,
+							EndDateTime:   pickupEndTime,
+						},
+						{
+							StopName: STOP2,
+							StopType: DropoffStopType,
+							StopID:   TWO,
+							Address: model.StopAddress{
+								PostalCode:   dropoffPostalcode,
+								AddressLines: []string{*dropoffAddr.Address},
+								City:         *dropoffAddr.City,
+								State:        *dropoffAddr.State,
+								Country:      *dropoffAddr.Country,
+							},
+							StartDateTime: dropoffStartTime,
+							EndDateTime:   dropoffEndTime,
+						},
+					},
+				},
+			},
+		},
+	}
+	return req, nil
+}
+
+
+func (c controller) createOrder(ctx context.Context, params *model.MacropointOrder) error {
+	pickupAddr, _ := c.facilityController.FetchBusinessFacilityAddr(ctx, datatypes.UUID(*params.PickupBusinessFacilityUUID))
+	dropAddr, _ := c.facilityController.FetchBusinessFacilityAddr(ctx, datatypes.UUID(*params.DropoffBusinessFacilityUUID))
+	dotNumber, dotErr := c.getDotNumber(ctx, *params.CarrierUUID)
+	if dotErr != nil || len(dotNumber) == 0 {
+		return errors.Wrapf(errors.InternalError, dotErr, "failed to get DotNumber")
+	}
+	req, mapperErr := mapper.MacropointCreateOrderRequest(params, pickupAddr, dropAddr, dotNumber)
+	if mapperErr != nil {
+		return errors.Wrapf(errors.InternalError, mapperErr, "failed to convert model to macropoint create order request")
+	}
+	response, apiErr := c.macropointGw.CreateOrder(ctx, req)
+
+	if apiErr != nil {
+		return errors.Wrapf(errors.InternalError, apiErr, "failed to get response from macropoint createOrder gateway")
+	}
+
+	// Save LoadUUID as jobUUID
+	if dbErr := c.macropointRepo.CreateOrUpdateOrder(ctx, params.JobUUID, &model.MacropointOrder{
+		JobUUID:                     params.JobUUID,
+		LoadUUID:                    &params.JobUUID,
+		CarrierUUID:                 params.CarrierUUID,
+		TruckNumber:                 params.TruckNumber,
+		PickupBusinessFacilityUUID:  params.PickupBusinessFacilityUUID,
+		PickupStartTime:             params.PickupStartTime,
+		PickupEndTime:               params.PickupEndTime,
+		DropoffBusinessFacilityUUID: params.DropoffBusinessFacilityUUID,
+		DropoffStartTime:            params.DropoffStartTime,
+		DropoffEndTime:              params.DropoffEndTime,
+		CreatedAt:                   params.CreatedAt,
+		UpdatedAt:                   params.UpdatedAt,
+		OrderID:                     &response.OrderID,
+		TrackingRequestID:           &response.TrackingRequestID,
+	}); dbErr != nil {
+		return dbErr
+	}
+	return apiErr
+}
+
+func (c *controller) saveParams(ctx context.Context, jobUUID string, params *model.MacropointOrder) error {
+	err := c.macropointRepo.CreateOrUpdateOrder(ctx, jobUUID, params)
+	if err != nil {
+		logger.FromContext(ctx).With(zap.String("job_uuid", jobUUID), zap.Error(err)).Error("error writing macropoint order data to MySQL")
+		return err
+	}
+	return err
+}
+func (r *repository) CreateOrUpdateOrder(ctx context.Context, jobUUID string, macropointOrder *model.MacropointOrder) error {
+	if macropointOrder == nil {
+		return errors.New(errors.ParamsError, "macropoint order data is nil")
+	}
+
+	return r.retry.InvokeWithRetry(r.createOrUpdateImplOrder, ctx, jobUUID, macropointOrder)
+}
+
+func (r *repository) createOrUpdateImplOrder(ctx context.Context, jobUUID string, macropointOrder *model.MacropointOrder) error {
+	macropointOrder.JobUUID = jobUUID
+	return r.mysqlConnection.DoInTransaction(func(mysqlConn mysqlconn.MySQLConn) error {
+
+		err := mysqlConn.GetPrimaryDB().Table(macropointOrder.TableName()).
+			Where("job_uuid = ?", jobUUID).
+			Assign(macropointOrder).
+			FirstOrCreate(&model.MacropointOrder{}).Error
+
+		if err != nil {
+			return errors.Wrapf(errors.InternalError, err, "failed to upsert macropoint order data for JobUUID: %v", jobUUID)
+		}
+		return nil
+	})
+}
