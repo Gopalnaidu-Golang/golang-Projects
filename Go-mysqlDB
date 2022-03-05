@@ -1,1 +1,80 @@
 
+
+type MacropointCarrier struct {
+	CarrierUUID string `gorm:"primary_key"`
+	DotNumber   *string
+	CarrierName *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
+}
+
+// CarrierTableName -
+func (s MacropointCarrier) CarrierTableName() string { return "macropoint_carrier" }
+
+func (r *carrierRepository) CreateOrUpdateCarrier(ctx context.Context, carrierUUID string, macropointCarrier *model.MacropointCarrier) error {
+	if macropointCarrier == nil {
+		return errors.New(errors.ParamsError, "macropoint carrier data is nil")
+	}
+
+	return r.retry.InvokeWithRetry(r.createOrUpdateCarrierImpl, ctx, carrierUUID, macropointCarrier)
+}
+
+func (r *carrierRepository) createOrUpdateCarrierImpl(ctx context.Context, carrierUUID string, macropointCarrier *model.MacropointCarrier) error {
+	macropointCarrier.CarrierUUID = carrierUUID
+	return r.mysqlConnection.DoInTransaction(func(mysqlConn mysqlconn.MySQLConn) error {
+
+		err := mysqlConn.GetPrimaryDB().Table(macropointCarrier.CarrierTableName()).
+			Where("carrier_uuid = ?", carrierUUID).
+			Assign(macropointCarrier).
+			FirstOrCreate(&model.MacropointCarrier{}).Error
+
+		if err != nil {
+			return errors.Wrapf(errors.InternalError, err, "failed to upsert macropoint carrier data for CarrierUUID: %v", carrierUUID)
+		}
+		return nil
+	})
+}
+
+// CreateOrUpdateDopplerVehicle -
+func (r *repository) CreateOrUpdateDopplerVehicle(
+	ctx context.Context,
+	vehicle *entity.DopplerVehicle,
+) (*entity.DopplerVehicle, error) {
+	var dopplerVehicle model.DopplerVehicle
+	err := r.mySQLConn.DoInTransaction(func(conn mysqlconn.MySQLConn) error {
+		db := conn.GetPrimaryDB()
+		//  Check if record exists
+		err := r.mySQLConn.GetPrimaryDB().
+			Where("carrier_uuid = ? AND vehicle_name = ?",
+				vehicle.CarrierUUID(),
+				vehicle.VehicleName()).Find(&dopplerVehicle).Error
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				dopplerVehicle = *mapper.DopplerVehicleEntityToModel(*vehicle)
+				if err := db.Create(&dopplerVehicle).Error; err != nil { // Write to db
+					return errors.Wrapf(errors.InternalError, err,
+						"failed to create doppler vehicle record")
+				}
+				return nil
+			}
+			return errors.Wrapf(errors.InternalError, err,
+				"error on reading doppler vehicle with carrier id:%s and vehicle name :%s",
+				vehicle.CarrierUUID(), vehicle.VehicleName())
+		}
+		// Record exists - update
+		err = db.Model(&dopplerVehicle).Where("carrier_uuid = ? AND vehicle_name = ?", vehicle.CarrierUUID(),
+			vehicle.VehicleName()).Update("updated_at", time.Now()).Error
+		if err != nil {
+			return errors.Wrapf(errors.InternalError, err,
+				"failed to update doppler vehicle record")
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return mapper.DopplerVehicleModelToEntity(dopplerVehicle), nil
+}
