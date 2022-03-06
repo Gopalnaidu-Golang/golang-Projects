@@ -1,0 +1,58 @@
+
+set := make(map[string]struct{})
+for _, value := range []string{"apple", "orange", "apple"} {
+   set[value] = struct{}{}
+}
+fmt.Println(set)
+// Output: map[orange:{} apple:{}]
+
+//-use: to call inside pkgs
+type DopplerVehicle struct {
+	uuid        u.UUID
+	carrierUUID u.UUID
+	vehicleName string
+}
+
+// DopplerVehicleParams - params struct to create a DopplerVehicle - use: to call outside or other pkgs
+type DopplerVehicleParams struct {
+	UUID        u.UUID
+	CarrierUUID u.UUID
+	VehicleName string
+}
+
+// NewDopplerVehicle - Create new DopplerVehicle from Params
+func NewDopplerVehicle(d DopplerVehicleParams) DopplerVehicle {
+	return DopplerVehicle{
+		uuid:        d.UUID,
+		carrierUUID: d.CarrierUUID,
+		vehicleName: d.VehicleName,
+	}
+}
+- synchnous anonymous func
+* func() { 
+*   // do something that takes a while 
+* }()
+- Asynchnous anonymous func 
+* go func() { 
+*   // do something that takes a while 
+* }()
+* func abc() func() {
+* 	name := "kiran"
+* 	var fn = func() {
+* 		fmt.Println(name)
+* 	}
+* 	return fn
+* }
+
+  go func() {
+    defer close(c)
+    err = wg.Wait()
+  }()
+
+  select {
+  case <-c:
+    return err
+  case <-ctx.Done():
+    return errors.Wrap(errors.InternalError, ctx.Err(), "error waiting for waitgroup")
+  }
+}
