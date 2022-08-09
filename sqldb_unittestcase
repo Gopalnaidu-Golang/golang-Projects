@@ -1,0 +1,201 @@
+package mysql
+
+import (
+	"context"
+	"regexp"
+	"testing"
+
+	"code.uber.internal/people/talent/upanel/entity"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+	"github.com/uber-go/tally"
+	"go.uber.org/zap/zaptest"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	gormmysqlfxmock "mock/code.uber.internal/devexp/gorm-mysqlfx/gorm-mysqlfxmock"
+)
+
+var (
+	_testQuestionsColumns = []string{"SkillName", "SkillID", "SkillType", "IsActive"}
+)
+
+type param struct {
+	tname      string
+	res        []entity.Skill
+	query      map[string]interface{}
+	orderparam string
+	order      string
+}
+
+func Test_GetAllSkills(t *testing.T) {
+
+	testCases := []struct {
+		name           string
+		expectation    func(sqlmock.Sqlmock)
+		expectedResult []entity.Skill
+		expectedErr    error
+	}{
+		{
+			name: "failed to fetch records",
+			expectation: func(m sqlmock.Sqlmock) {
+			},
+			expectedResult: nil,
+			expectedErr:    nil,
+		},
+		{
+			name: "mysql error",
+			expectation: func(m sqlmock.Sqlmock) {
+			},
+			expectedResult: nil,
+			expectedErr:    nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo, sqlMock := getMockRepo(t)
+			tc.expectation(sqlMock)
+			actualRes, actualErr := mockRepo.GetAllSkills(context.Background())
+			assert.Nil(t, actualRes)
+			assert.NotEqual(t, actualErr, tc.expectedErr)
+			assert.Nil(t, sqlMock.ExpectationsWereMet())
+		})
+	}
+}
+
+func Test_GetAllSkillsRecords(t *testing.T) {
+	selectQuestionQuery := regexp.QuoteMeta("SELECT * FROM `skills`")
+	skills := make([]entity.Skill, 0)
+	m := map[string]interface{}{"is_active": true}
+	args := param{
+		tname:      Skill,
+		res:        skills,
+		query:      m,
+		orderparam: "skill_name",
+		order:      "",
+	}
+	expectedOutput := []entity.Skill{
+		{
+			SkillName: "golang",
+			SkillID:   1,
+			SkillType: "developer",
+			IsActive:  true,
+		},
+		{
+			SkillName: "java",
+			SkillID:   2,
+			SkillType: "developer",
+			IsActive:  true,
+		},
+	}
+
+	testCases := []struct {
+		name           string
+		expectation    func(sqlmock.Sqlmock)
+		params         param
+		expectedResult []entity.Skill
+		expectedErr    error
+	}{
+
+		{
+			name: "Reading records",
+			expectation: func(m sqlmock.Sqlmock) {
+				m.ExpectQuery(selectQuestionQuery).WithArgs().WillReturnRows(sqlmock.NewRows(_testQuestionsColumns).AddRow("golang", 1, "developer", true))
+			},
+			params:         args,
+			expectedResult: expectedOutput,
+			expectedErr:    nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo, sqlMock := getMockRepo(t)
+			tc.expectation(sqlMock)
+			actualRes, actualErr := mockRepo.GetAllSkills(context.Background())
+			assert.NotNil(t, actualRes)
+			assert.Equal(t, actualErr, tc.expectedErr)
+			assert.Nil(t, sqlMock.ExpectationsWereMet())
+		})
+	}
+}
+func Test_GetSkillByType(t *testing.T) {
+	selectQuestionQuery := regexp.QuoteMeta("SELECT * FROM `skills`")
+	skills := make([]entity.Skill, 0)
+	//m := map[string]interface{}{"is_active": true}
+	m := map[string]interface{}{"skill_type": "BAR_RAISER", "is_active": true}
+	args := param{
+		tname:      Skill,
+		res:        skills,
+		query:      m,
+		orderparam: "skill_name",
+		order:      "",
+	}
+	expectedOutput := []entity.Skill{
+		{
+			SkillName: "golang",
+			SkillID:   1,
+			SkillType: "developer",
+			IsActive:  true,
+		},
+		{
+			SkillName: "java",
+			SkillID:   2,
+			SkillType: "developer",
+			IsActive:  true,
+		},
+	}
+
+	testCases := []struct {
+		name           string
+		expectation    func(sqlmock.Sqlmock)
+		params         param
+		expectedResult []entity.Skill
+		expectedErr    error
+	}{
+
+		{
+			name: "Reading records",
+			expectation: func(m sqlmock.Sqlmock) {
+				m.ExpectQuery(selectQuestionQuery).WithArgs().WillReturnRows(sqlmock.NewRows(_testQuestionsColumns).AddRow("golang", 1, "developer", true))
+			},
+			params:         args,
+			expectedResult: expectedOutput,
+			expectedErr:    nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo, sqlMock := getMockRepo(t)
+			tc.expectation(sqlMock)
+			actualRes, actualErr := mockRepo.GetSkillByType(context.Background(), "BAR_RAISER")
+			assert.NotNil(t, actualRes)
+			assert.Equal(t, actualErr, tc.expectedErr)
+			assert.Nil(t, sqlMock.ExpectationsWereMet())
+		})
+	}
+}
+func getMockRepo(t *testing.T) (Repository, sqlmock.Sqlmock) {
+	mockCtrl := gomock.NewController(t)
+
+	sqlMockDB, sqlMock, err := sqlmock.New()
+	assert.Nil(t, err)
+
+	gormDB, err := gorm.Open(mysql.New(mysql.Config{
+		DriverName:                "mysql",
+		Conn:                      sqlMockDB,
+		SkipInitializeWithVersion: true,
+	}), &gorm.Config{})
+	assert.Nil(t, err)
+
+	mockSQLClient := gormmysqlfxmock.NewMockGORMClient(mockCtrl)
+	mockSQLClient.EXPECT().GetReadWrite().Return(gormDB, nil).AnyTimes()
+	mockSQLClient.EXPECT().GetReadOnly().Return(gormDB, nil).AnyTimes()
+	mockRepo, err := New(UPanelMySQLClientParams{
+		Client: mockSQLClient,
+		Logger: zaptest.NewLogger(t),
+		//Config:  fbConfig.Config{,
+		Metrics: tally.NoopScope,
+	})
+	assert.Nil(t, err)
+	return mockRepo, sqlMock
+}
